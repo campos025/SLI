@@ -10,7 +10,7 @@ $album = ['ID' => '', 'Label' => '', 'IsActive' => 1, 'CreatedDate' => '', 'Upda
 // Check if we're editing an album
 if (isset($_GET['id'])) {
     $id = $_GET['id'];
-    $sql = "SELECT * FROM album WHERE ID = ?";
+    $sql = "SELECT * FROM Album WHERE ID = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("i", $id);
     $stmt->execute();
@@ -30,7 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $createdDate = date('Y-m-d');  // Current date for creation
 
         if ($isEditing) {
-            $stmt = $conn->prepare("UPDATE album SET Label = ?, IsActive = ?, UpdatedDate = ?, UpdatedBy = ? WHERE ID = ?");
+            $stmt = $conn->prepare("UPDATE Album SET Label = ?, IsActive = ?, UpdatedDate = ?, UpdatedBy = ? WHERE ID = ?");
             $stmt->bind_param("siiii", $label, $isActive, $updatedDate, $updatedBy, $id);
         } else {
             $stmt = $conn->prepare("INSERT INTO album (Label, IsActive, CreatedDate, CreatedBy, UpdatedDate, UpdatedBy) VALUES (?, ?, ?, ?, ?, ?)");
@@ -52,51 +52,97 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $uploadedBy = 1;  // Assuming logged-in user ID
         $uploadedDate = date('Y-m-d');
         $isActive = 1;  // Set files as active by default
-
+    
         $files = $_FILES['files'];
-
-        for ($i = 0; $i < count($files['name']); $i++) {
-            $fileName = $files['name'][$i];
-            $fileTmpName = $files['tmp_name'][$i];
-            $filePath = 'files/' . $fileName;
-
-            // Move the uploaded file to the server
-            if (move_uploaded_file($fileTmpName, $filePath)) {
-                // Insert file into the database
-                $sqlFile = "INSERT INTO files (AlbumID, FileName, Path, UploadedBy, UploadedDate, IsActive) VALUES (?, ?, ?, ?, ?, ?)";
-                $stmtFile = $conn->prepare($sqlFile);
-                $stmtFile->bind_param("issisi", $albumID, $fileName, $filePath, $uploadedBy, $uploadedDate, $isActive);
-                $stmtFile->execute();
+    
+        // Fetch the album label from the database using the album ID
+        $sqlAlbum = "SELECT Label FROM Album WHERE ID = ?";
+        $stmtAlbum = $conn->prepare($sqlAlbum);
+        $stmtAlbum->bind_param("i", $albumID);
+        $stmtAlbum->execute();
+        $stmtAlbum->bind_result($albumLabel);
+        $stmtAlbum->fetch();
+        $stmtAlbum->close();
+    
+        if ($albumLabel) {
+            // Use the album label as part of the file path
+            $albumFolder = 'files/' . preg_replace('/[^a-zA-Z0-9-_]/', '_', $albumLabel);  // Sanitize the folder name
+            if (!is_dir($albumFolder)) {
+                mkdir($albumFolder, 0777, true);  // Create album folder if it doesn't exist
             }
+    
+            for ($i = 0; $i < count($files['name']); $i++) {
+                $fileName = $files['name'][$i];
+                $fileTmpName = $files['tmp_name'][$i];
+    
+                // Create the full file path dynamically within the album folder
+                $filePath = $albumFolder . '/' . $fileName;
+    
+                // Move the uploaded file to the server in the album folder
+                if (move_uploaded_file($fileTmpName, $filePath)) {
+                    // Insert file info into the database
+                    $sqlFile = "INSERT INTO Files (AlbumID, Label, FileName, Path, UploadedBy, UploadedDate, IsActive, isIntegrated) 
+                                VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+                    $stmtFile = $conn->prepare($sqlFile);
+                    $fileLabel = $fileName;  // You can modify this to use a custom label for each file if needed
+                    $isIntegrated = 0;  // Assuming the file is not integrated by default (you can adjust this as needed)
+                    $stmtFile->bind_param("isssisi", $albumID, $fileLabel, $fileName, $filePath, $uploadedBy, $uploadedDate, $isActive, $isIntegrated);
+                    $stmtFile->execute();
+                }
+            }
+        } else {
+            echo "Album not found!";
         }
     }
+    
 
-    // Handle file deletion
-    if (isset($_POST['deleteSelectedFiles']) && isset($_POST['selectedFiles'])) {
-        $selectedFiles = $_POST['selectedFiles'];
+  // Handle file deletion
+if (isset($_POST['deleteSelectedFiles']) && isset($_POST['selectedFiles'])) {
+    $selectedFiles = $_POST['selectedFiles'];
 
-        foreach ($selectedFiles as $fileID) {
-            // Fetch file from database to get the file path
-            $sqlDelete = "SELECT * FROM files WHERE ID = ?";
-            $stmtDelete = $conn->prepare($sqlDelete);
-            $stmtDelete->bind_param("i", $fileID);
-            $stmtDelete->execute();
-            $resultDelete = $stmtDelete->get_result();
-            $fileToDelete = $resultDelete->fetch_assoc();
+    foreach ($selectedFiles as $fileID) {
+        // Fetch file from database to get the file path and album ID
+        $sqlDelete = "SELECT * FROM Files WHERE ID = ?";
+        $stmtDelete = $conn->prepare($sqlDelete);
+        $stmtDelete->bind_param("i", $fileID);
+        $stmtDelete->execute();
+        $resultDelete = $stmtDelete->get_result();
+        $fileToDelete = $resultDelete->fetch_assoc();
+
+        if ($fileToDelete) {
+            // Get the album ID and file path from the database record
+            $albumID = $fileToDelete['AlbumID'];
             $filePathToDelete = $fileToDelete['Path'];
 
-            // Delete file from server
-            if (file_exists($filePathToDelete)) {
-                unlink($filePathToDelete);
-            }
+            // Fetch the album label to reconstruct the folder path
+            $sqlAlbum = "SELECT Label FROM Album WHERE ID = ?";
+            $stmtAlbum = $conn->prepare($sqlAlbum);
+            $stmtAlbum->bind_param("i", $albumID);
+            $stmtAlbum->execute();
+            $stmtAlbum->bind_result($albumLabel);
+            $stmtAlbum->fetch();
+            $stmtAlbum->close();
 
-            // Delete file from the database
-            $sqlDeleteFile = "DELETE FROM files WHERE ID = ?";
-            $stmtDeleteFile = $conn->prepare($sqlDeleteFile);
-            $stmtDeleteFile->bind_param("i", $fileID);
-            $stmtDeleteFile->execute();
+            if ($albumLabel) {
+                // Reconstruct the album folder path
+                $albumFolder = 'files/' . preg_replace('/[^a-zA-Z0-9-_]/', '_', $albumLabel);  // Ensure a valid folder name
+                $fullFilePathToDelete = $albumFolder . '/' . basename($filePathToDelete); // Add the file name to the folder path
+
+                // Delete the file from the server if it exists
+                if (file_exists($fullFilePathToDelete)) {
+                    unlink($fullFilePathToDelete);  // Remove the file
+                }
+
+                // Delete the file entry from the database
+                $sqlDeleteFile = "DELETE FROM Files WHERE ID = ?";
+                $stmtDeleteFile = $conn->prepare($sqlDeleteFile);
+                $stmtDeleteFile->bind_param("i", $fileID);
+                $stmtDeleteFile->execute();
+            }
         }
     }
+}
+
 
     // Handle file move to another album
     if (isset($_POST['moveFiles']) && isset($_POST['selectedFiles']) && isset($_POST['albumID'])) {
@@ -105,7 +151,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         foreach ($selectedFiles as $fileID) {
             // Update album ID for selected files
-            $sqlMove = "UPDATE files SET AlbumID = ? WHERE ID = ?";
+            $sqlMove = "UPDATE Files SET AlbumID = ? WHERE ID = ?";
             $stmtMove = $conn->prepare($sqlMove);
             $stmtMove->bind_param("ii", $newAlbumID, $fileID);
             $stmtMove->execute();
@@ -118,7 +164,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 // Fetch all albums for the "Move to Album" dropdown
-$albumsQuery = "SELECT ID, Label FROM album";
+$albumsQuery = "SELECT ID, Label FROM Album";
 $albumsResult = $conn->query($albumsQuery);
 
 ?>
