@@ -86,7 +86,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $stmtFile = $conn->prepare($sqlFile);
                     $fileLabel = $fileName;  // You can modify this to use a custom label for each file if needed
                     $isIntegrated = 0;  // Assuming the file is not integrated by default (you can adjust this as needed)
-                    $stmtFile->bind_param("isssisi", $albumID, $fileLabel, $fileName, $filePath, $uploadedBy, $uploadedDate, $isActive, $isIntegrated);
+                    $stmtFile->bind_param("isssisii", $albumID, $fileLabel, $fileName, $filePath, $uploadedBy, $uploadedDate, $isActive, $isIntegrated);
                     $stmtFile->execute();
                 }
             }
