@@ -2,7 +2,7 @@
 // role_details.php - Create or Edit Role
 
 include_once("../../connections/db.php");
-
+include_once("check_session.php");
 // Check if we are editing an existing role or creating a new one
 $roleID = isset($_GET['id']) ? $_GET['id'] : null;
 $role = null;

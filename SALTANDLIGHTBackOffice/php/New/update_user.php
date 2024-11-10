@@ -1,7 +1,7 @@
 <?php
 // update_user.php - Insert or update user details
 include_once("../../connections/db.php");
-
+include_once("check_session.php");
 // Check if form is submitted
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Get the submitted values

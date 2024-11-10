@@ -2,7 +2,7 @@
 // user_details.php - Create or Edit a user
 
 include_once("../../connections/db.php");
-
+include_once("check_session.php");
 // Define the salt to be used
 define('SALT', 'SLIWM');
 

@@ -2,7 +2,7 @@
 // file_list.php - List all files
 
 include_once("../../connections/db.php");
-
+include_once("check_session.php");
 // Fetch all files from the database
 $sql = "SELECT f.ID, f.Label, f.FileName, f.UploadedDate, u.Username AS UploadedBy, f.IsActive FROM files f JOIN user u ON f.UploadedBy = u.ID";
 $result = $conn->query($sql);

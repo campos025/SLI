@@ -1,6 +1,7 @@
 <?php
 // Include the database connection
 include_once("../../connections/db.php");
+include_once("check_session.php");
 
 // Initialize variables
 $id = $label = $isActive = '';

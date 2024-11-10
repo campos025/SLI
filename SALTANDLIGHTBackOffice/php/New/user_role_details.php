@@ -2,7 +2,7 @@
 // user_role_details.php - Create or Edit a user-role association
 
 include_once("../../connections/db.php");
-
+include_once("check_session.php");
 // Initialize variables
 $isEditing = false;
 $user_role = ['ID' => '', 'UserID' => '', 'RoleID' => ''];  // Default empty values

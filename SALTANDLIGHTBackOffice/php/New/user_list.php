@@ -3,7 +3,7 @@
 
 include_once("../../connections/db.php");
 include_once("check_session.php");
-
+include_once("check_session.php");
 // Fetch all users from the database
 $sql = "SELECT * FROM user";
 $result = $conn->query($sql);

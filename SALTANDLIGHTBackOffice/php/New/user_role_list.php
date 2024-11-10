@@ -2,7 +2,7 @@
 // user_role_list.php - List page for user roles
 
 include_once("../../connections/db.php");
-
+include_once("check_session.php");
 // Fetch the user-role associations with user and role details
 $sql = "
     SELECT ur.ID, u.Username, r.Label AS Role

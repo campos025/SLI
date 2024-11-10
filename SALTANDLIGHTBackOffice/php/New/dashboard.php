@@ -1,7 +1,10 @@
 <?php
 // dashboard.php - Dashboard page with a table for files grouped by album and date, and a simple user list
-
+// Turn on error reporting
+error_reporting(E_ALL); // Report all types of errors
+ini_set('display_errors', 1); // Display errors in the browser
 include_once("../../connections/db.php");
+include_once("check_session.php");
 
 // Fetch the number of files per album grouped by date
 $sql_files_by_album_and_date = "

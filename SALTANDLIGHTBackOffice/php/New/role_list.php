@@ -2,7 +2,7 @@
 // role_list.php - Display a list of all roles
 
 include_once("../../connections/db.php");
-
+include_once("check_session.php");
 // Fetch all roles from the database
 $sql = "SELECT * FROM Role";
 $result = $conn->query($sql);

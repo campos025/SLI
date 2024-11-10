@@ -2,7 +2,7 @@
 // album_list.php - Display a list of all albums
 
 include_once("../../connections/db.php");
-
+include_once("check_session.php");
 // Fetch all albums from the database
 $sql = "SELECT * FROM album";
 $result = $conn->query($sql);

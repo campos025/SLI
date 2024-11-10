@@ -1,6 +1,6 @@
 <?php
 // file_details.php - Create or Edit a file
-
+include_once("check_session.php");
 include_once("../../connections/db.php");
 
 // Check if there is an ID in the query string (for editing an existing file)
