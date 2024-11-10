@@ -1,6 +1,6 @@
 
 {
-  "name": "sli",
+  "name": "sliwm/sl",
   "description": "Salt and Ligh website",
   "type": "project",
   "require": {
