@@ -1,1 +1,9 @@
 
+{
+  "name": "Salt and Ligh website",
+  "description": "Salt and Ligh website",
+  "type": "project",
+  "require": {
+    "php": "^7.4 || ^8.0"
+  }
+}
