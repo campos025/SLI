@@ -5,7 +5,7 @@
 		$uri = 'http://';
 	}
 	$uri .= $_SERVER['HTTP_HOST'];
-	header('Location: '.$uri.'/SLIOfficial/');
+	header('Location: '.$uri.'/SLI/SLI/SLIOfficial/');
 	exit;
 ?>
 
