@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-  a
+  
   <title>SALT AND LIGHT FELLOWSHIP</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -31,7 +31,7 @@
         <div class="navbar-nav ms-auto py-0">
           <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
             <li class="nav-item"><a class="nav-link" aria-current="page" href="#about">About</a></li>
-            <li class="nav-item"><a class="nav-link" href="#followus">Albums</a></li>
+            <li class="nav-item"><a class="nav-link" href="album.php">Albums</a></li>
             <li class="nav-item"><a class="nav-link" href="#followus">Follow Us</a></li>
             <li class="nav-item"><a class="nav-link" href="#!">Contact</a></li>
           
