@@ -420,7 +420,7 @@
     <!-- Section: Links  -->
 
     <!-- Copyright -->
-    <div class="text-center p-4" style="background-color: rgba(0, 0, 0, 0.05);">
+    <div class="p-4" style="background-color: rgba(0, 0, 0, 0.05);">
       © 2024 Copyright:
       <a class="text-reset fw-bold" href="">SALT AND LIGHT FELLOWSHIP</a>
     </div>
